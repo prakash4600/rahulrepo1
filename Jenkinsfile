@@ -2,10 +2,12 @@ pipeline {
     agent any
 
     environment {
-        AZ_CLIENT_ID       = credentials('azure-client-id')
-        AZ_CLIENT_SECRET   = credentials('azure-client-secret')
-        AZ_SUBSCRIPTION_ID = credentials('azure-subscription-id')
-        AZ_TENANT_ID       = credentials('azure-tenant-id')
+        AZ_CLIENT_ID       = credentials('AZ_CLIENT_ID')
+        AZ_CLIENT_SECRET   = credentials('AZ_CLIENT_SECRET')
+        AZ_SUBSCRIPTION_ID = credentials('AZ_SUBSCRIPTION_ID')
+        AZ_TENANT_ID       = credentials('AZ_TENANT_ID')
+}
+
     }
 
     stages {
