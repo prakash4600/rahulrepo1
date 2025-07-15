@@ -11,44 +11,49 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/prakash4600/rahulrepo1.git'
+                git branch: 'main', url: 'https://github.com/prakash4600/rahulrepo1.git'
             }
         }
 
         stage('Check Terraform') {
             steps {
                 sh 'terraform -version'
-                sh 'cd terraform'
             }
         }
 
         stage('Terraform Init') {
             steps {
-                sh 'terraform init'
+                dir('terraform') {
+                    sh 'terraform init'
+                }
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                sh """
-                    terraform plan \
-                        -var="client_id=${AZ_CLIENT_ID}" \
-                        -var="client_secret=${AZ_CLIENT_SECRET}" \
-                        -var="subscription_id=${AZ_SUBSCRIPTION_ID}" \
-                        -var="tenant_id=${AZ_TENANT_ID}"
-                """
+                dir('terraform') {
+                    sh """
+                        terraform plan \
+                            -var="client_id=${AZ_CLIENT_ID}" \
+                            -var="client_secret=${AZ_CLIENT_SECRET}" \
+                            -var="subscription_id=${AZ_SUBSCRIPTION_ID}" \
+                            -var="tenant_id=${AZ_TENANT_ID}"
+                    """
+                }
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                sh """
-                    terraform apply -auto-approve \
-                        -var="client_id=${AZ_CLIENT_ID}" \
-                        -var="client_secret=${AZ_CLIENT_SECRET}" \
-                        -var="subscription_id=${AZ_SUBSCRIPTION_ID}" \
-                        -var="tenant_id=${AZ_TENANT_ID}"
-                """
+                dir('terraform') {
+                    sh """
+                        terraform apply -auto-approve \
+                            -var="client_id=${AZ_CLIENT_ID}" \
+                            -var="client_secret=${AZ_CLIENT_SECRET}" \
+                            -var="subscription_id=${AZ_SUBSCRIPTION_ID}" \
+                            -var="tenant_id=${AZ_TENANT_ID}"
+                    """
+                }
             }
         }
     }
