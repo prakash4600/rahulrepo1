@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        TF_IN_AUTOMATION = 'true'
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -17,14 +21,14 @@ pipeline {
                         string(credentialsId: 'AZURE_SUBSCRIPTION_ID', variable: 'AZ_SUBSCRIPTION_ID'),
                         string(credentialsId: 'AZURE_TENANT_ID', variable: 'AZ_TENANT_ID')
                     ]) {
-                        sh 'terraform init'
-                        sh """
+                        sh '''
+                            terraform init
                             terraform plan \
-                              -var="client_id=${AZ_CLIENT_ID}" \
-                              -var="client_secret=${AZ_CLIENT_SECRET}" \
-                              -var="subscription_id=${AZ_SUBSCRIPTION_ID}" \
-                              -var="tenant_id=${AZ_TENANT_ID}"
-                        """
+                              -var="client_id=$AZ_CLIENT_ID" \
+                              -var="client_secret=$AZ_CLIENT_SECRET" \
+                              -var="subscription_id=$AZ_SUBSCRIPTION_ID" \
+                              -var="tenant_id=$AZ_TENANT_ID"
+                        '''
                     }
                 }
             }
@@ -39,13 +43,13 @@ pipeline {
                         string(credentialsId: 'AZURE_SUBSCRIPTION_ID', variable: 'AZ_SUBSCRIPTION_ID'),
                         string(credentialsId: 'AZURE_TENANT_ID', variable: 'AZ_TENANT_ID')
                     ]) {
-                        sh """
+                        sh '''
                             terraform apply -auto-approve \
-                              -var="client_id=${AZ_CLIENT_ID}" \
-                              -var="client_secret=${AZ_CLIENT_SECRET}" \
-                              -var="subscription_id=${AZ_SUBSCRIPTION_ID}" \
-                              -var="tenant_id=${AZ_TENANT_ID}"
-                        """
+                              -var="client_id=$AZ_CLIENT_ID" \
+                              -var="client_secret=$AZ_CLIENT_SECRET" \
+                              -var="subscription_id=$AZ_SUBSCRIPTION_ID" \
+                              -var="tenant_id=$AZ_TENANT_ID"
+                        '''
                     }
                 }
             }
