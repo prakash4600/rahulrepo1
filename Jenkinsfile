@@ -1,13 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        AZ_CLIENT_ID       = credentials('AZ_CLIENT_ID')
-        AZ_CLIENT_SECRET   = credentials('AZ_CLIENT_SECRET')
-        AZ_SUBSCRIPTION_ID = credentials('AZ_SUBSCRIPTION_ID')
-        AZ_TENANT_ID       = credentials('AZ_TENANT_ID')
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -15,30 +8,24 @@ pipeline {
             }
         }
 
-        stage('Check Terraform') {
-            steps {
-                sh 'terraform -version'
-            }
-        }
-
-        stage('Terraform Init') {
+        stage('Terraform Init & Plan') {
             steps {
                 dir('terraform') {
-                    sh 'terraform init'
-                }
-            }
-        }
-
-        stage('Terraform Plan') {
-            steps {
-                dir('terraform') {
-                    sh """
-                        terraform plan \
-                            -var="client_id=${AZ_CLIENT_ID}" \
-                            -var="client_secret=${AZ_CLIENT_SECRET}" \
-                            -var="subscription_id=${AZ_SUBSCRIPTION_ID}" \
-                            -var="tenant_id=${AZ_TENANT_ID}"
-                    """
+                    withCredentials([
+                        string(credentialsId: 'AZURE_CLIENT_ID', variable: 'AZ_CLIENT_ID'),
+                        string(credentialsId: 'AZURE_CLIENT_SECRET', variable: 'AZ_CLIENT_SECRET'),
+                        string(credentialsId: 'AZURE_SUBSCRIPTION_ID', variable: 'AZ_SUBSCRIPTION_ID'),
+                        string(credentialsId: 'AZURE_TENANT_ID', variable: 'AZ_TENANT_ID')
+                    ]) {
+                        sh 'terraform init'
+                        sh """
+                            terraform plan \
+                              -var="client_id=${AZ_CLIENT_ID}" \
+                              -var="client_secret=${AZ_CLIENT_SECRET}" \
+                              -var="subscription_id=${AZ_SUBSCRIPTION_ID}" \
+                              -var="tenant_id=${AZ_TENANT_ID}"
+                        """
+                    }
                 }
             }
         }
@@ -46,13 +33,20 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 dir('terraform') {
-                    sh """
-                        terraform apply -auto-approve \
-                            -var="client_id=${AZ_CLIENT_ID}" \
-                            -var="client_secret=${AZ_CLIENT_SECRET}" \
-                            -var="subscription_id=${AZ_SUBSCRIPTION_ID}" \
-                            -var="tenant_id=${AZ_TENANT_ID}"
-                    """
+                    withCredentials([
+                        string(credentialsId: 'AZURE_CLIENT_ID', variable: 'AZ_CLIENT_ID'),
+                        string(credentialsId: 'AZURE_CLIENT_SECRET', variable: 'AZ_CLIENT_SECRET'),
+                        string(credentialsId: 'AZURE_SUBSCRIPTION_ID', variable: 'AZ_SUBSCRIPTION_ID'),
+                        string(credentialsId: 'AZURE_TENANT_ID', variable: 'AZ_TENANT_ID')
+                    ]) {
+                        sh """
+                            terraform apply -auto-approve \
+                              -var="client_id=${AZ_CLIENT_ID}" \
+                              -var="client_secret=${AZ_CLIENT_SECRET}" \
+                              -var="subscription_id=${AZ_SUBSCRIPTION_ID}" \
+                              -var="tenant_id=${AZ_TENANT_ID}"
+                        """
+                    }
                 }
             }
         }
